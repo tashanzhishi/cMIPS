@@ -88,14 +88,11 @@ void TestRegex()
 void TestDecode()
 {
     memset (REG,sizeof(REG),0);
-    int i=0;
-    for (i=512;i<512+100;i++) MEM[i]=2;
-    LW (R_T1,0,512); //REG[t1]=0x01010101
-    LW (R_T2,0,512); //REG[t2]=0x01010101
     DecodeAndExecute();
     printf("\n****result****\n");
-    printf ("$%s:0x%08x\n$%s:0x%08x\n$%s:0x%08x\n",kRegisterSet[R_T3],REG[R_T3], \
-            kRegisterSet[R_T4],REG[R_T4],kRegisterSet[R_T5],REG[R_T5]);
+    int i=0;
+    for (i=DATA_BEGIN; i<DATA_BEGIN+80; i+=4)
+        printf("%d: %d\n",i,MEM_W(i));
 }
 
 int main ()

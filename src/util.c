@@ -31,18 +31,22 @@ unsigned int RegName2ID (const char* name)
     return REG_SIZE+1;
 }
 
-unsigned int String2Int (const char* src)
+int String2Int (const char* src)
 {
-    unsigned int dest=0,temp=0;
-    int len = strlen(src)-1,i=0; // have \n
-    for(i=0; i<len; ++i)
+    int dest=0, temp=0, sign=1;
+    int len = (int)strlen(src), i=0;
+    if (src[0]=='-') {
+        sign=-1;
+        i=1;
+    }
+    for( ; i<len; ++i)
         if (src[i]>='0'&&src[i]<='9') {
-            temp = (unsigned int)(src[i]-'0');
+            temp = src[i]-'0';
             dest = dest*10 + temp;
         }
         else
             printf("string to int error\n");
-    return dest;
+    return sign*dest;
 }
 void swap (unsigned int* num1, unsigned int* num2)
 {

@@ -14,9 +14,7 @@
 
 extern char* StringUpper(const char* src);
 extern unsigned int RegName2ID(const char* name);
-extern unsigned int String2Int(const char* stc);
+extern int String2Int(const char* stc);
 extern void swap (unsigned int* num1, unsigned int* num2);
-
-extern void hehe();
 
 #endif //CMIPS_UTIL_H

@@ -16,10 +16,10 @@ void CompileMIPS()
     const char* op_name = "(\\w+)\\s+(\\w+)\\s*";
     const char* op_reg = "(\\w+)\\s+\\$(\\w+)\\s*";
     const char* op_reg_reg = "(\\w+)\\s+\\$(\\w+)\\s*,\\s*\\$(\\w+)\\s*";
-    const char* op_reg_imm = "(\\w+)\\s+\\$(\\w+)\\s*,\\s*(#[0-9]+)\\s*";
+    const char* op_reg_imm = "(\\w+)\\s+\\$(\\w+)\\s*,\\s*\\#(-?[0-9]+)\\s*";
     const char* op_reg_reg_reg = "(\\w+)\\s+\\$(\\w+)\\s*,\\s*\\$(\\w+)\\s*,\\s*\\$(\\w+)\\s*";
-    const char* op_reg_imm_reg = "(\\w+)\\s+\\$(\\w+)\\s*,\\s*([0-9]+)\\(\\$(\\w+)\\)";
-    const char* op_reg_reg_imm = "(\\w+)\\s+\\$(\\w+)\\s*,\\s*\\$(\\w+)\\s*,\\s*\\#([0-9]+)";
+    const char* op_reg_imm_reg = "(\\w+)\\s+\\$(\\w+)\\s*,\\s*(-?[0-9]+)\\(\\$(\\w+)\\)\\s*";
+    const char* op_reg_reg_imm = "(\\w+)\\s+\\$(\\w+)\\s*,\\s*\\$(\\w+)\\s*,\\s*\\#(-?[0-9]+)\\s*";
     char pattern[1000];
     sprintf(pattern,"%s|%s|%s|%s|%s|%s|%s",op_name,op_reg,op_reg_reg,op_reg_imm,op_reg_reg_reg,op_reg_imm_reg,op_reg_reg_imm);
     //sprintf(pattern,"%s|%s",op_loop,op_reg);
@@ -112,8 +112,7 @@ unsigned int Instruction2Binary(char (*parameter)[50], const int parameter_num, 
             }
             else
                 printf("compile OP_REG error!\n");
-            binary32 = (op & 0x3f)<<26 | (rs & 0x1f) << 21 | (rt & 0x1f) << 16 | \
-                       (rd & 0x1f) << 11 | (sa & 0x1f) << 6 | (func & 0x3f);
+            binary32 = (rd & 0x1f) << 11 | (func & 0x3f);
             break;
         case OP_REG_REG:                                                                  //op $t0,$t1
             rs=RegName2ID(parameter[2]);
@@ -132,11 +131,10 @@ unsigned int Instruction2Binary(char (*parameter)[50], const int parameter_num, 
             }
             else
                 printf("compile OP_REG_REG error!\n");
-            binary32 = (op & 0x3f)<<26 | (rs & 0x1f) << 21 | (rt & 0x1f) << 16 | \
-                       (rd & 0x1f) << 11 | (sa & 0x1f) << 6 | (func & 0x3f);
+            binary32 = (rs & 0x1f) << 21 | (rt & 0x1f) << 16 | (func & 0x3f);
             break;
         case OP_REG_IMM:                                                                   //op $t0,#100
-            address=String2Int(parameter[3]);
+            imm=String2Int(parameter[3]);
             if (strcmp("LUI",func_string)==0){
                 op=15;
                 rt=RegName2ID(parameter[2]);
@@ -160,7 +158,7 @@ unsigned int Instruction2Binary(char (*parameter)[50], const int parameter_num, 
             }
             else
                 printf("compile OP_REG_IMM error!\n");
-            binary32 = (op & 0x3f)<<26 | (rs & 0x1f) << 21 | (rt & 0x1f) << 16 | (address & 0xffff);
+            binary32 = (op & 0x3f)<<26 | (rs & 0x1f) << 21 | (rt & 0x1f) << 16 | (imm & 0xffff);
             break;
         case OP_REG_REG_REG:                                                            //op $t0,$t1,$t2
             rd = RegName2ID(parameter[2]);
@@ -224,9 +222,9 @@ unsigned int Instruction2Binary(char (*parameter)[50], const int parameter_num, 
                        (rd & 0x1f) << 11 | (sa & 0x1f) << 6 | (func & 0x3f);
             break;
         case OP_REG_IMM_REG:                                                                  //SW $t0,100($t1)
-            rs = RegName2ID(parameter[2]);
-            address = String2Int(parameter[3]);
-            rt = RegName2ID(parameter[4]);
+            rt = RegName2ID(parameter[2]);
+            imm = String2Int(parameter[3]);
+            rs = RegName2ID(parameter[4]);
             if (strcmp("LB",func_string)==0){
                 op=32;
             }
@@ -247,12 +245,12 @@ unsigned int Instruction2Binary(char (*parameter)[50], const int parameter_num, 
             }
             else
                 printf("compile OP_REG_IMM_REG error!\n");
-            binary32 = (op & 0x3f)<<26 | (rs & 0x1f) << 21 | (rt & 0x1f) << 16 | (address & 0xffff);
+            binary32 = (op & 0x3f)<<26 | (rs & 0x1f) << 21 | (rt & 0x1f) << 16 | (imm & 0xffff);
             break;
         case OP_REG_REG_IMM:                                                             //op $t0,$t1,#1000
             rs = RegName2ID(parameter[2]);
             rt = RegName2ID(parameter[3]);
-            address = String2Int(parameter[4]);
+            imm = String2Int(parameter[4]);
             if (strcmp("ADDI",func_string)==0){
                 op=8;
             }
@@ -280,9 +278,17 @@ unsigned int Instruction2Binary(char (*parameter)[50], const int parameter_num, 
             else if (strcmp("BNE",func_string)==0){
                 op=5;
             }
+            else if (strcmp("SLL",func_string)==0){
+                rd=rs; sa=address;
+                op=rs=0; func=0;
+            }
+            else if (strcmp("SRA",func_string)==0){
+                rd=rs; sa=address;
+                op=rs=0; func=3;
+            }
             else
                 printf("compile OP_REG_REG_IMM error!\n");
-            binary32 = (op & 0x3f)<<26 | (rs & 0x1f) << 21 | (rt & 0x1f) << 16 | (address & 0xffff);
+            binary32 = (op & 0x3f)<<26 | (rs & 0x1f) << 21 | (rt & 0x1f) << 16 | (imm & 0xffff);
             break;
         default:
             printf("switch error\n");
