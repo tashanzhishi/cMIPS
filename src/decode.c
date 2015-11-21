@@ -30,6 +30,9 @@ void DecodeAndExecute()
         switch (op) {
             case 0:
                 switch (func){
+                    case 0:
+                        printf("hehhe");
+                        break;
                     case 32:
                         ADD(rd, rs, rt);
                         break;
