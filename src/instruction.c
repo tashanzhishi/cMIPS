@@ -315,20 +315,22 @@ void SRLV (const int rd, const int rt, const int rs)
 //J target
 void J (const UINT target)
 {
-    REG[PC] = REG[PC] + 4;
+    PLUS_PC(4);
     REG[PC] = (REG[PC] & 0xf0000000) | (target << 2);
 }
 //To execute a procedure call within the current 256 MB-aligned region
 //JAL target
 void JAL (const UINT target)
 {
-    REG[R_RA] = REG[PC] + 8;
+    PLUS_PC(4);
+    REG[R_RA] = REG[PC];
     REG[PC] = (REG[PC] & 0xf0000000) | (target << 2);
 }
 //Branch on Less Than Zero
 //if rs < 0 then branch
 void BLTZ (const int rs, const int offset)
 {
+    PLUS_PC(4);
     if (REG[rs] < 0)
         REG[PC] += (offset << 2);
 }
@@ -336,6 +338,7 @@ void BLTZ (const int rs, const int offset)
 //if rs <= 0 then branch
 void BLEZ (const int rs, const int offset)
 {
+    PLUS_PC(4);
     if (REG[rs] <= 0)
         REG[PC] += (offset << 2);
 }
@@ -343,6 +346,7 @@ void BLEZ (const int rs, const int offset)
 //if rs > 0 then branch
 void BGTZ (const int rs, const int offset)
 {
+    PLUS_PC(4);
     if (REG[rs] > 0)
         REG[PC] += (offset << 2);
 }
@@ -350,6 +354,7 @@ void BGTZ (const int rs, const int offset)
 //if rs >= 0 then branch
 void BGEZ (const int rs, const int offset)
 {
+    PLUS_PC(4);
     if (REG[rs] >= 0)
         REG[PC] += (offset << 2);
 }
@@ -357,6 +362,7 @@ void BGEZ (const int rs, const int offset)
 //if rs = rt then branch
 void BEQ (const int rs, const int rt, const int offset)
 {
+    PLUS_PC(4);
     if(REG[rs] == REG[rt])
         REG[PC] += (offset << 2);
 }
@@ -364,6 +370,7 @@ void BEQ (const int rs, const int rt, const int offset)
 //if rs != rt then branch
 void BNE (const int rs, const int rt, const int offset)
 {
+    PLUS_PC(4);
     if(REG[rs] != REG[rt])
         REG[PC] += (offset << 2);
 }
