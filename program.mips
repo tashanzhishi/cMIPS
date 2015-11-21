@@ -1,0 +1,3 @@
+ADD	$t3,$t1,$t2
+ADDU $t4,$t1,$t2
+SUB $t5,$t1,$t2

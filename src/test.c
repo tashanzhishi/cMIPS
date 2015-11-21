@@ -1,12 +1,16 @@
 //
 // Created by wyb on 15-11-15.
 //
+
 #include<stdio.h>
 #include<string.h>
+#include <regex.h>
+#include "instruction.h"
+#include "util.h"
+#include "compiler.h"
 #include "register.h"
+#include "decode.h"
 
-extern unsigned int REG[REG_SIZE+3];
-extern unsigned char MEM[MEM_SIZE];
 
 void TestMemory ()
 {
@@ -20,17 +24,86 @@ void TestMemory ()
 
     memset (MEM,sizeof(MEM),0);
     REG[0]=0,REG[1]=0x12,REG[2]=0x1234,REG[3]=0x12345678;
-    SB (0,1,1); //MEM[1]=REG[1]低8位
-    SH (0,10,2); //MEM[2]=REG[2]低16位
-    SW (0,20,3); //MEM[3]=REG[3]低32位
+    SB (1,0,1); //MEM[1]=REG[1]低8位
+    SH (2,0,10); //MEM[2]=REG[2]低16位
+    SW (3,0,20); //MEM[3]=REG[3]低32位
     printf ("0x%08x 0x%08x 0x%08x\n",MEM_B(1),MEM_H(10),MEM_W(20));
 
-    REG[R_S0]=500, REG[R_S1]=200;
+    REG[R_S0]=300, REG[R_S1]=200;
     ADD (R_S2,R_S0,R_S1);
     printf ("%d\n",REG[R_S2]);
 }
+
+void TestRegex()
+{
+    const char* op_loop = "(\\w+)\\s+(\\w+)\\s*";
+    const char* op_reg = "(\\w+)\\s+(\\$\\w+)\\s*";
+    const char* op_reg_reg = "(\\w+)\\s+(\\$\\w+)\\s*,\\s*(\\$\\w+)\\s*";
+    const char* op_reg_imm = "(\\w+)\\s+(\\$\\w+)\\s*,\\s*(#[0-9]+)\\s*";
+    const char* op_reg_reg_reg = "(\\w+)\\s+(\\$\\w+)\\s*,\\s*(\\$\\w+)\\s*,\\s*(\\$\\w+)\\s*";
+    const char* op_reg_imm_reg = "(\\w+)\\s+(\\$\\w+)\\s*,\\s*([0-9]+)\\((\\$\\w+)\\)";
+    const char* op_reg_reg_imm = "(\\w+)\\s+(\\$\\w+)\\s*,\\s*(\\$\\w+)\\s*,\\s*\\#([0-9]+)";
+    char pattern[1000];
+    sprintf(pattern,"%s|%s|%s|%s|%s|%s|%s",op_loop,op_reg,op_reg_reg,op_reg_imm,op_reg_reg_reg,op_reg_imm_reg,op_reg_reg_imm);
+    //sprintf(pattern,"%s|%s",op_loop,op_reg);
+    //printf("%s\n",pattern);
+    //const int group_index[7][2] = {{1,2},{3,4},{5,7},{8,10},{11,14},{15,18},{19,22}};
+    //const int group_num = 7;
+    regex_t reg;
+    regcomp(&reg, pattern, REG_EXTENDED|REG_NEWLINE);
+    int status;
+    regmatch_t pmatch[23];
+    const int nmatch = 23;
+
+    char buf[80];
+    FILE* fp = fopen("program.mips","rb");
+    if(fp==NULL)
+        printf("fopen error\n");
+    char parameter[20];
+    while(fgets(buf,80,fp))
+    {
+        if(buf[0]=='\n'||buf[0]=='\0') continue;
+        status = regexec(&reg, buf, nmatch, pmatch, 0);
+        if(status == REG_NOMATCH)
+            printf("NO MATCH\n");
+        else if(status == 0){
+            printf("Match:\n");
+            int i,j,k;
+            for(i=0;i<nmatch;i++) if(buf[pmatch[i].rm_so]!='\0') {
+                printf("group%d: ",i);
+                for (j=pmatch[i].rm_so,k=0; j<pmatch[i].rm_eo; ++j)
+                    parameter[k++] = buf[j];
+                parameter[k]='\0';
+                printf("%s\n",parameter);
+                    //printf("%c", buf[j]);
+                //printf("\n");
+            }
+            printf("\n");
+        }
+    }
+    fclose(fp);
+    regfree(&reg);
+}
+
+void TestDecode()
+{
+    memset (REG,sizeof(REG),0);
+    int i=0;
+    for (i=512;i<512+100;i++) MEM[i]=2;
+    LW (R_T1,0,512); //REG[t1]=0x01010101
+    LW (R_T2,0,512); //REG[t2]=0x01010101
+    DecodeAndExecute();
+    printf("\n****result****\n");
+    printf ("$%s:0x%08x\n$%s:0x%08x\n$%s:0x%08x\n",kRegisterSet[R_T3],REG[R_T3], \
+            kRegisterSet[R_T4],REG[R_T4],kRegisterSet[R_T5],REG[R_T5]);
+}
+
 int main ()
 {
-    TestMemory();
+    //TestMemory();
+    //TestRegex();
+    CompileMIPS();
+    //DecodeAndExecute();
+    TestDecode();
     return 0;
 }

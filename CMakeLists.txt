@@ -4,7 +4,7 @@ project(cMIPS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-        src/register.c
-        src/register.h src/compiler.c src/compiler.h src/test.c src/test.h)
+        src/instruction.c
+        src/instruction.h src/compiler.c src/compiler.h src/test.c src/test.h src/register.c src/register.h src/util.c src/util.h src/decode.c src/decode.h)
 
 add_executable(cMIPS ${SOURCE_FILES})

@@ -5,10 +5,16 @@
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/compiler.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/compiler.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/decode.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/decode.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/instruction.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/instruction.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/register.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/register.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/util.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/util.h" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
