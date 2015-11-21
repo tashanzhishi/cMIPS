@@ -10,7 +10,7 @@
 #include "util.h"
 #include "register.h"
 
-void CompileMIPS()
+void CompileMIPS(FILE* fp)
 {
     //7 regex expressions
     const char* op_name = "(\\w+)\\s+(\\w+)\\s*";
@@ -31,12 +31,7 @@ void CompileMIPS()
     int status;
     regmatch_t pmatch[23]; //23 groups, which is "()" number of regex
     const int nmatch = 23;
-
     char buf[80]; //read file line
-    FILE* fp_read = fopen("program.mips","rb");
-    //FILE* fp_write = fopen("compile.two","wb");
-    if(fp_read==NULL)
-        printf("fopen error\n");
 
     //save the mips parameter,there are 5 most. [add $t1,$t2,$t3],[add],[$t1],[$t2],[$t3]
     char parameter[PARAMETERS_NUM+1][PARAMETER_LENGTH];
@@ -44,7 +39,7 @@ void CompileMIPS()
 
     printf("\n****code****\n");
 
-    while(fgets(buf,80,fp_read))
+    while(fgets(buf,80,fp))
     {
         //printf("\n");
         parameter_num=0;
@@ -76,11 +71,8 @@ void CompileMIPS()
         //printf("::%d\n",MEM_W(program_pr));
         program_pr += 4;
         instruction_num += 1;
-        //fprintf(fp_write,"%u\n",Instruction2Binary(parameter,parameter_num,kind_num));
     }
     MEM_W(CODE_BEGIN) = instruction_num;
-    fclose(fp_read);
-    //fclose(fp_write);
     regfree(&reg);
 }
 

@@ -17,7 +17,7 @@
 #define OP_REG_IMM_REG 6
 #define OP_REG_REG_IMM 7
 
-extern void CompileMIPS();
+extern void CompileMIPS(FILE* fp);
 extern unsigned int Instruction2Binary(char (*parameter)[50], const int parameter_num, const int kind_num);
 
 #endif //CMIPS_COMPILER_H

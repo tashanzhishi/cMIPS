@@ -1,0 +1,14 @@
+xor $sp,$sp,$sp
+addi $sp,$sp,#512
+xor $t0,$t0,$t0
+xor $t1,$t1,$t1
+xor $t2,$t2,$t2
+addi $t1,$t1,#1
+addi $t2,$t2,#10
+sw $t0, 0($sp)
+sw $t1, 4($sp)
+addi $sp,$sp,#8
+add $t0,$t0,$t1
+add $t1,$t1,$t0
+addi $t2,$t2,#-1
+bgez $t2,#-7

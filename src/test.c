@@ -85,9 +85,15 @@ void TestRegex()
     regfree(&reg);
 }
 
-void TestDecode()
+void TestFibonacci()
 {
     memset (REG,sizeof(REG),0);
+    FILE* fp_read = fopen("res/program.mips","rb");
+    if(fp_read==NULL)
+        printf("fopen error\n");
+    CompileMIPS(fp_read);
+    fclose(fp_read);
+
     DecodeAndExecute();
     printf("\n****result****\n");
     int i=0;
@@ -99,8 +105,6 @@ int main ()
 {
     //TestMemory();
     //TestRegex();
-    CompileMIPS();
-    //DecodeAndExecute();
-    TestDecode();
+    TestFibonacci();
     return 0;
 }
